@@ -73,7 +73,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun sendNotification(messageBody: String) {
+    private fun sendNotification(remoteMessage: RemoteMessage) {
         val intent = Intent(this, MainActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         val pendingIntent = PendingIntent.getActivity(this, 0, intent,
@@ -92,8 +92,8 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
         val notificationBuilder: NotificationCompat.Builder = NotificationCompat.Builder(this, channelId)
             .setSmallIcon(R.mipmap.sym_def_app_icon) // replace with your app icon
-            .setContentTitle("Notification Title") // Set a proper title
-            .setContentText(messageBody) // Set the message body
+            .setContentTitle(remoteMessage.data["title"]) // Set a proper title
+            .setContentText(remoteMessage.data["body"]) // Set the message body
             .setAutoCancel(true) // Make the notification dismissible
             .setSound(defaultSoundUri)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
@@ -115,20 +115,21 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                 .url("http://192.168.1.12:3000/acknowlege/"+remoteMessage.data["notificationId"])
                 .build()
         apiClient.newCall(request).enqueue(object : Callback {
+            @RequiresApi(Build.VERSION_CODES.O)
             override fun onFailure(call: Call, e: IOException) {
                 // Handle failure
                 Log.d(TAG, "onResponse---> ${e.toString()}")
-                sendNotification("New Notification from Server")
+                sendNotification(remoteMessage)
             }
 
             override fun onResponse(call: Call, response: Response) {
                 if (response.isSuccessful) {
                     val responseBody = response.body?.string()
                     Log.d(TAG, "onResponse---> $response")
-                    sendNotification("New Notification from Server")
+                    sendNotification(remoteMessage)
                     // Process the response body
                 } else {
-                    sendNotification("New Notification from Server")
+                    sendNotification(remoteMessage)
                     // Handle unsuccessful response
                 }
             }
