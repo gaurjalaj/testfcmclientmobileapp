@@ -80,6 +80,19 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE)
         val defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
 
+        // Create intents for accept and reject actions
+        val acceptIntent = Intent(this, NotificationActionReceiver::class.java).apply {
+            action = "ACTION_ACCEPT"
+        }
+        val acceptPendingIntent = PendingIntent.getBroadcast(this, 0, acceptIntent,
+            PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE)
+
+        val rejectIntent = Intent(this, NotificationActionReceiver::class.java).apply {
+            action = "ACTION_REJECT"
+        }
+        val rejectPendingIntent = PendingIntent.getBroadcast(this, 1, rejectIntent,
+            PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE)
+
         // Create a notification channel for Android O and above
         val channelId = "demo_channel_id"
         val channelName = "DemoChannelName"
@@ -98,6 +111,8 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             .setSound(defaultSoundUri)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setContentIntent(pendingIntent)
+            .addAction(R.mipmap.sym_def_app_icon, "Accept", acceptPendingIntent)
+            .addAction(R.drawable.sym_def_app_icon, "Reject", rejectPendingIntent)
 
         notificationManager.notify(UUID.randomUUID().hashCode(), notificationBuilder.build())
     }
@@ -112,7 +127,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         val apiClient = OkHttpClient();
         val request = Request.Builder()
 //                .url("https://jsonplaceholder.typicode.com/todos/1")
-                .url("http://192.168.1.12:3000/acknowlege/"+remoteMessage.data["notificationId"])
+                .url("http://192.168.1.6:3000/acknowlege/"+remoteMessage.data["notificationId"])
                 .build()
         apiClient.newCall(request).enqueue(object : Callback {
             @RequiresApi(Build.VERSION_CODES.O)
