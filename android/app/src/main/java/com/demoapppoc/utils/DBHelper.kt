@@ -4,13 +4,14 @@ import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import com.demoapppoc.Constants
 
 class DBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
 
     companion object {
         private const val DATABASE_VERSION = 1
-        private const val DATABASE_NAME = "demopocdatabase.db"
-        private const val TABLE_NAME = "demopoctable"
+        private const val DATABASE_NAME = Constants.fcmDataBaseName
+        private const val TABLE_NAME = Constants.fcmDataTable
         private const val COLUMN_ID = "_id"
         private const val COLUMN_NAME = "notificationsData"
     }
