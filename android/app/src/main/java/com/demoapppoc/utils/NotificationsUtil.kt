@@ -33,7 +33,7 @@ object NotificationsUtil {
         val intent = Intent(context, MainActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
 
-        val pendingIntent = PendingIntent.getActivity(context, 0, intent,
+        val pendingIntent = PendingIntent.getActivity(context, notifyId, intent,
             PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE)
 
         val defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
@@ -43,15 +43,15 @@ object NotificationsUtil {
             action = "ACTION_ACCEPT"
             putExtra("notificationId", notifyId)
         }
-        val acceptPendingIntent = PendingIntent.getBroadcast(context, 0, acceptIntent,
-            PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE)
+        val acceptPendingIntent = PendingIntent.getBroadcast(context, notifyId+1, acceptIntent,
+            PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
 
         val rejectIntent = Intent(context, NotificationActionReceiver::class.java).apply {
             action = "ACTION_REJECT"
             putExtra("notificationId", notifyId)
         }
-        val rejectPendingIntent = PendingIntent.getBroadcast(context, 1, rejectIntent,
-            PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE)
+        val rejectPendingIntent = PendingIntent.getBroadcast(context, notifyId+2, rejectIntent,
+            PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
 
         // Create a notification channel for Android O and above
         val channelId = "demo_channel_id"
