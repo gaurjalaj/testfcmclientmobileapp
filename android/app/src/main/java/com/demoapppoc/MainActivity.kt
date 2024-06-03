@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.PersistableBundle
+import com.demoapppoc.utils.NotificationsUtil
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.fabricEnabled
@@ -16,7 +17,7 @@ class MainActivity : ReactActivity() {
         super.onCreate(savedInstanceState, persistentState)
 
         // Clear all notifications when the app is opened
-        clearAllNotifications()
+        NotificationsUtil.clearAllNotifications(applicationContext)
     }
 
   /**
@@ -34,19 +35,14 @@ class MainActivity : ReactActivity() {
 
     override fun onResume() {
         super.onResume()
-        clearAllNotifications()
+        NotificationsUtil.clearAllNotifications(applicationContext)
     }
 
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
 
         // Clear all notifications when the app is opened
-        clearAllNotifications()
-    }
-
-    private fun clearAllNotifications() {
-        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.cancelAll()
+        NotificationsUtil.clearAllNotifications(applicationContext)
     }
 
 }

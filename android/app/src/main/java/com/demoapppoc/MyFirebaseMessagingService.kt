@@ -11,21 +11,17 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationCompat.PRIORITY_MAX
 import com.demoapppoc.utils.DBHelper
 import com.demoapppoc.utils.EncryptedSharedPrefWrapper
-import com.demoapppoc.utils.Helpers
-import com.google.firebase.FirebaseApp
+import com.demoapppoc.utils.NotificationsUtil
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
-import com.google.firebase.provider.FirebaseInitProvider
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
 import okio.IOException
-import java.util.UUID
 
 
 class MyFirebaseMessagingService : FirebaseMessagingService() {
@@ -72,50 +68,6 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         acknowledgeServer(remoteMessage);
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    private fun sendNotification(remoteMessage: RemoteMessage) {
-        val intent = Intent(this, MainActivity::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-        val pendingIntent = PendingIntent.getActivity(this, 0, intent,
-            PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE)
-        val defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
-
-        // Create intents for accept and reject actions
-        val acceptIntent = Intent(this, NotificationActionReceiver::class.java).apply {
-            action = "ACTION_ACCEPT"
-        }
-        val acceptPendingIntent = PendingIntent.getBroadcast(this, 0, acceptIntent,
-            PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE)
-
-        val rejectIntent = Intent(this, NotificationActionReceiver::class.java).apply {
-            action = "ACTION_REJECT"
-        }
-        val rejectPendingIntent = PendingIntent.getBroadcast(this, 1, rejectIntent,
-            PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE)
-
-        // Create a notification channel for Android O and above
-        val channelId = "demo_channel_id"
-        val channelName = "DemoChannelName"
-        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_HIGH)
-            channel.description = "description"
-            notificationManager.createNotificationChannel(channel)
-//        }
-
-        val notificationBuilder: NotificationCompat.Builder = NotificationCompat.Builder(this, channelId)
-            .setSmallIcon(R.mipmap.sym_def_app_icon) // replace with your app icon
-            .setContentTitle(remoteMessage.data["title"]) // Set a proper title
-            .setContentText(remoteMessage.data["body"]) // Set the message body
-            .setAutoCancel(true) // Make the notification dismissible
-            .setSound(defaultSoundUri)
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setContentIntent(pendingIntent)
-            .addAction(R.mipmap.sym_def_app_icon, "Accept", acceptPendingIntent)
-            .addAction(R.drawable.sym_def_app_icon, "Reject", rejectPendingIntent)
-
-        notificationManager.notify(UUID.randomUUID().hashCode(), notificationBuilder.build())
-    }
 
     private fun acknowledgeServer(remoteMessage: RemoteMessage) {
         try {
@@ -127,24 +79,24 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         val apiClient = OkHttpClient();
         val request = Request.Builder()
 //                .url("https://jsonplaceholder.typicode.com/todos/1")
-                .url("http://192.168.1.6:3000/acknowlege/"+remoteMessage.data["notificationId"])
+                .url("http://192.168.0.210:3000/acknowlege/"+remoteMessage.data["notificationId"])
                 .build()
         apiClient.newCall(request).enqueue(object : Callback {
             @RequiresApi(Build.VERSION_CODES.O)
             override fun onFailure(call: Call, e: IOException) {
                 // Handle failure
                 Log.d(TAG, "onResponse---> ${e.toString()}")
-                sendNotification(remoteMessage)
+                NotificationsUtil.sendNotification(applicationContext, remoteMessage)
             }
 
             override fun onResponse(call: Call, response: Response) {
                 if (response.isSuccessful) {
                     val responseBody = response.body?.string()
                     Log.d(TAG, "onResponse---> $response")
-                    sendNotification(remoteMessage)
+                   NotificationsUtil.sendNotification(applicationContext, remoteMessage)
                     // Process the response body
                 } else {
-                    sendNotification(remoteMessage)
+                   NotificationsUtil.sendNotification(applicationContext, remoteMessage)
                     // Handle unsuccessful response
                 }
             }
