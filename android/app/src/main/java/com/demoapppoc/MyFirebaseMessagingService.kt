@@ -79,7 +79,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         val apiClient = OkHttpClient();
         val request = Request.Builder()
 //                .url("https://jsonplaceholder.typicode.com/todos/1")
-                .url("http://192.168.1.28:3000/acknowlege/"+remoteMessage.data["notificationId"])
+                .url("http://192.168.0.221:3000/acknowlege/"+remoteMessage.data["notificationId"])
                 .build()
         apiClient.newCall(request).enqueue(object : Callback {
             @RequiresApi(Build.VERSION_CODES.O)
@@ -89,6 +89,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                 NotificationsUtil.sendNotification(applicationContext, remoteMessage)
             }
 
+            @RequiresApi(Build.VERSION_CODES.O)
             override fun onResponse(call: Call, response: Response) {
                 if (response.isSuccessful) {
                     val responseBody = response.body?.string()
