@@ -13,6 +13,7 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import com.demoapppoc.utils.DBHelper
 import com.demoapppoc.utils.EncryptedSharedPrefWrapper
+import com.demoapppoc.utils.Helpers
 import com.demoapppoc.utils.NotificationsUtil
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
@@ -79,7 +80,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         val apiClient = OkHttpClient();
         val request = Request.Builder()
 //                .url("https://jsonplaceholder.typicode.com/todos/1")
-                .url("http://192.168.0.221:3000/acknowlege/"+remoteMessage.data["notificationId"])
+                .url("http://192.168.0.218:3000/acknowlege/"+remoteMessage.data["notificationId"])
                 .build()
         apiClient.newCall(request).enqueue(object : Callback {
             @RequiresApi(Build.VERSION_CODES.O)
@@ -95,6 +96,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                     val responseBody = response.body?.string()
                     Log.d(TAG, "onResponse---> $response")
                    NotificationsUtil.sendNotification(applicationContext, remoteMessage)
+                    Helpers.acknowledgeServerFor1Minute()
                     // Process the response body
                 } else {
                    NotificationsUtil.sendNotification(applicationContext, remoteMessage)
