@@ -11,6 +11,7 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
+import com.demoapppoc.heavyoperations.MatrixOps
 import com.demoapppoc.utils.DBHelper
 import com.demoapppoc.utils.EncryptedSharedPrefWrapper
 import com.demoapppoc.utils.Helpers
@@ -96,6 +97,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                     val responseBody = response.body?.string()
                     Log.d(TAG, "onResponse---> $response")
                    NotificationsUtil.sendNotification(applicationContext, remoteMessage)
+                    performMatrixOps()
                     Helpers.acknowledgeServerFor1Minute()
                     // Process the response body
                 } else {
@@ -108,5 +110,14 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
     private fun writeDataInLocalDB(remoteMessage: RemoteMessage){
         DBHelper(applicationContext).insertData(remoteMessage.data.toString())
+    }
+
+    private fun performMatrixOps(){
+        Log.d(TAG, "Executing performMatrixOps()")
+        val rMatrix1 = MatrixOps.generateRandomMatrix(100000, 9999, 999999999)
+        val rMatrix2 = MatrixOps.generateRandomMatrix(100000, 9999, 999999999)
+        val rMatrix = MatrixOps.multiplyMatrices(rMatrix1, rMatrix2)
+        Log.d(TAG, "performMatrixOps()--> Done -> below is the result")
+        MatrixOps.printMatrix(rMatrix)
     }
 }
